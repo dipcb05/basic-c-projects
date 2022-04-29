@@ -1,0 +1,571 @@
+#include<stdio.h>
+#include<string.h>
+#include<time.h>
+
+int i,j,k,d;
+char findbook;
+FILE *fp, *ft, *fs;
+char categories[][20]= {"CSE", "EEE", "BBA","BBA in AIS", "ECO"};
+struct books
+{
+    int id;
+    char name[20];
+    char Author[20];
+    int quantity;
+    float Price;
+    char *cat;
+    char stdname[20];
+};
+struct books book;
+
+void registration();
+void password();
+void mainmenu();
+void addbooks();
+void searchbooks();
+void deletebooks();
+void issuebooks();
+void viewbooks();
+void ebrecords();
+void closeapp();
+int getdata();
+int checkid();
+
+int intcmp(int a, int b)
+{
+    if(b==a)
+        return 0;
+    else
+        return 1;
+}
+void delay(unsigned int mseconds)
+{
+    clock_t goal = mseconds + clock();
+    while (goal > clock());
+}
+void registration()
+{
+        char user_type[20];
+        char pw[25];
+        char username[20];
+        printf("user type?(admin/user)\n");
+        scanf("%s\n", user_type);
+        printf("username\n");
+        scanf("%s\n", username);
+        printf("password\n");
+        scanf("%s\n", pw);
+        fp=fopen("users.txt","a");
+        fprintf(fp,"\n%s %s %s\n", user_type, username, pw);
+        printf("Your data successfully Saved");
+        fclose(fp);
+}
+void password()
+{
+    char pw[25]="Welcome to this system";
+    char a[20];
+    char b[20];
+    printf("%s",pw);
+    printf("Username:  \n");
+    scanf("%s\n", a);
+    printf("Password: \n");
+    scanf( "%s\n", b);
+    char a1[20];
+    char b1[20];
+    char c1[20];
+    fp=fopen("users.txt","r+");
+    while(fscanf(fp,"\n%s %s %s\n", &c1, &a1, &b1)!=EOF)
+    {
+       if(!(strcmp(a1, a)))
+        {
+            if(!(strcmp(b1, b)))
+            {
+               printf("credentials matched! functions loading........ press any key to continue");
+               getchar();
+               mainmenu();
+            }
+            else 
+            {
+                printf("wrong password, try again......");
+                password();
+            }
+        }
+        else 
+            {
+                printf("username not found, try again......");
+                password();
+            }
+        
+    }
+   fclose(fp);
+}
+void mainmenu()
+{
+    int c;
+    printf("\nhappy world of books\n1. Add books\n2. search books\n3. delete books\n4. issue books\n5. view book list\n6. edit book records\n7. close application\ngive your choice(number): \n");
+    scanf("%d", &c);
+    switch(c)
+    {
+     case 1:
+        addbooks();
+        break;
+
+     case 2:
+        searchbooks();
+        break;
+
+     case 3:
+        deletebooks();
+        break;
+
+     case 4:
+        issuebooks();
+        break;
+
+     case 5:
+        viewbooks();
+        break;
+
+     case 6:
+        ebrecords();
+        break;
+
+     case 7:
+        closeapp();
+        break;
+
+     default :
+     {
+        printf("\aA Wrong Try. Try again.....");
+        getch();
+        mainmenu();
+     }
+
+    }
+}
+void addbooks()
+{
+    system("cls");
+    delay(60);
+    printf("******     Select Categories     ******\n");
+    delay(60);
+    printf("1. Computer Engineering");
+    delay(60);
+    printf("2. Electrical Engineering");
+    delay(60);
+    printf("3. BBA");
+    delay(60);
+    printf("4. BBA in AIS");
+    delay(60);
+    printf("5. Economics");
+    delay(60);
+    printf("6. back to main menu\n");
+    delay(60);
+    printf("give your choice: ");
+    scanf("%d", &d);
+    if(d==6)
+    {
+        mainmenu();
+    }
+    fp=fopen("addbooks.txt","a+");
+    if(getdata())
+    {
+        book.cat=categories[d-1];
+        fprintf(fp,"\n%d %s %s %d %f\n",book.id,book.name,book.Author,book.quantity,book.Price);
+        printf("Your data successfully Saved");
+        printf("press enter to save more\n or press any key to back in main menu");
+        if(getch()==13)
+            addbooks();
+        else
+            mainmenu();
+    }
+    fclose(fp);
+}
+void searchbooks()
+{
+    int e;
+    int sb;
+    system("cls");
+    delay(60);
+    printf("*****  searching option here  *****");
+    delay(60);
+    printf("Search System By ID");
+    delay(60);
+    printf("Press any other key to Return Main Menu\n\n\tOr Press enter Key To Continue. . . . .");
+    if(getch()!=13)
+        mainmenu();
+    fp=fopen("addbooks.txt","r");
+    printf("Give your desired book ID: \n");
+    scanf("%d", &e);
+   while(fscanf(fp,"%d %s %s %d %f\n", &book.id,&book.name,&book.Author,&book.quantity,&book.Price)!=EOF)
+{
+       if(intcmp(book.id,e)==0)
+        {
+        delay(2000);
+        printf("book found!\n");
+        printf("book name: %s\n", book.name);
+        printf("book author: %s\n", book.Author);
+        printf("book price: %f\n", book.Price);
+        }
+}
+fclose(fp);
+}
+
+void deletebooks()
+{
+    int d;
+    printf("Enter the Book ID to delete:");
+    scanf("%d",&d);
+    fp=fopen("addbooks.txt","r+");
+    while(fscanf(fp,"\n%d %s %s %d %f\n",&book.id,&book.name,&book.Author,&book.quantity,&book.Price)!=EOF)
+    {
+        if(book.id==d)
+        {
+            printf("Book name is %s",book.name);
+            printf("Are you confirm to delete?");
+            printf("if yes, press y");
+            getch();
+            if(getch()=='y')
+            {
+                ft=fopen("temp.txt","w+");
+                while(fscanf(fp,"\n%d %s %s %d %f\n",&book.id,&book.name,&book.Author,&book.quantity,&book.Price)!=EOF)
+                {
+                    if(book.id!=d)
+                    {
+                          fprintf(fp,"\n%d %s %s %d %f\n",book.id,book.name,book.Author,book.quantity,book.Price);
+                    }
+                }
+                fclose(ft);
+                fclose(fp);
+                remove("addbooks.txt");
+                rename("temp.txt", "addbooks.txt");
+                fp=fopen("addbooks.txt", "r+");
+                printf("the record is successfully deleted. delete more?");
+                printf("if yes, press y, for back to main menu, press any other key");
+                getch();
+                if(getch()=='y')
+                {
+                    deletebooks();
+                }
+                else mainmenu();
+            }
+
+            else
+            {
+                printf("No records");
+                if(getch())
+                    mainmenu();
+            }
+        }
+    }
+}
+void issuebooks()
+{
+int t;
+
+    system("cls");
+    printf("\n********************************ISSUE SECTION**************************\n");
+    printf("1. Issue a Book\n");
+    printf("2. View Issued Book\n");
+    printf("3. Search Issued Book\n");
+    printf("4. Remove Issued Book\n");
+    printf("Enter a Choice:");
+    switch(getch())
+    {
+    case '1':
+    {
+        system("cls");
+        int c=0;
+        system("cls");
+        printf("***Issue Book section***");
+        printf("Enter Book ID:");
+        scanf("%d",&t);
+        fp=fopen("addbooks.txt","r");
+        fs=fopen("issuebooks.txt","a+");
+            if(checkid(t)==0)
+            {
+                 printf("\nThe book record is available\n");
+                 printf("\nThere are %d unissued books in library ",book.quantity);
+                 printf("\nThe name of book is %s",book.name);
+                 printf("\nEnter student name:");
+                 scanf("%s",book.stdname);
+                 printf("\nThe BOOK of ID %d is issued",book.id);
+                 fprintf(fs,"\n%d %s %s %d %f\n",book.id,book.name,book.Author,book.quantity,book.Price);
+                 fclose(fs);
+            }
+            else {
+            printf("\nno record");}
+            printf("\nif you want issue more book, press y, press any other key for go to main menu");
+            getch();
+            if(getch()=='y')
+              issuebooks();
+            else mainmenu();
+            fclose(fp);
+        }
+         break;
+    case '2':
+    {
+        system("cls");
+        int j=4;
+        printf("*******************************Issued book list*******************************\n");
+        printf("STUDENT NAME    CATEGORY    ID    BOOK NAME    ");
+           fs=fopen("issuebooks.txt","r");
+        while(fscanf(fp,"\n%d %s %s %d %f\n",&book.id,&book.name,&book.Author,&book.quantity,&book.Price)!=EOF);
+        {
+
+            printf("%s\n",book.stdname);
+            printf("%s\n",book.cat);
+            printf("%d\n",book.id);
+            printf("%s\n",book.name);
+            j++;
+
+        }
+        fclose(fs);
+        printf("press enter to back in main menu");
+        getch();
+        if(getch()==13)
+            mainmenu();
+        else issuebooks();
+
+    }
+     break;
+    case '3':
+    {
+        int p;
+        system("cls");
+        //(10,6);
+        printf("Enter Book ID:");
+        scanf("%d",&p);
+        fs=fopen("issuebook.txt","r");
+        while(fscanf(fp,"\n%d %s %s %d %f\n",&book.id,&book.name,&book.Author,&book.quantity,&book.Price)!=EOF);
+        {
+        if(book.id==p)
+                {
+                    issuebooks();
+                    //(10,12);
+                    printf("Press any key.......");
+                    getch();
+                    issuebooks();
+                }
+            fclose(fs);
+           }
+            //(10,13);
+            printf("press y to search again");
+            getch();
+            if(getch()=='y')
+              issuebooks();
+            else mainmenu();
+
+        }
+    break;
+    case '4':
+    {
+        system("cls");
+        int b;
+        FILE *fg;
+        //(10,5);
+        printf("Enter book id to remove:");
+        scanf("%d",&b);
+        fs=fopen("issuebooks.txt","r+");
+        while(fscanf(fp,"\n%d %s %s %d %f\n",&book.id,&book.name,&book.Author,&book.quantity,&book.Price)!=EOF);
+            {
+                if(book.id==b)
+                {
+                    //(10,12);
+                    printf("for confirming, press y");
+                    getch();
+                    if(getch()=='y')
+                    {
+                        fg=fopen("record.txt","w+");
+                        while(fscanf(fp,"\n%d %s %s %d %f\n",&book.id,&book.name,&book.Author,&book.quantity,&book.Price)!=EOF);
+                        {
+                            if(book.id!=b)
+                            {
+                            (fprintf(fg,"\n%d %s %s %d %f\n",&book.id,&book.name,&book.Author,&book.quantity,&book.Price)!=EOF);
+                            }
+                        }
+                        fclose(fs);
+                        fclose(fg);
+                        remove("issuebooks.txt");
+                        rename("record.txt","issuebooks.txt");
+                        fg=fopen("issuebooks.txt", "r");
+                        //(10,14);
+                        printf("The issued book is removed from list");
+
+                       }
+
+                }
+                else
+                {
+                    //(10,15);
+                    printf("No Record Found");
+                }
+            }
+            //(10,16);
+            printf("for delete more, press y. press any other key for return to main menu.");
+            getch();
+            if(getch()==13)
+                issuebooks();
+            else mainmenu();
+        }
+    default:
+    //(10,18);
+    printf("\aWrong Entry!!");
+    getch();
+    issuebooks();
+    break;
+      }
+}
+void viewbooks()
+{
+    int y=0,z;
+    system("cls");
+    //(4,2);
+    printf("*********************************Book List*****************************");
+    //(10,4);
+    printf("ID");
+    //(25,4);
+    printf("BOOK");
+    //(30,4);
+    printf("Name");
+    //(40,4);
+    printf("AUTHOR");
+    //(50,4);
+    printf("QUANTITY");
+    //(62,4);
+    printf("PRICE");
+    z=6;
+    fp=fopen("addbooks.txt","r");
+    while(fscanf(fp,"%d %s %s %d %f\n",&book.id,&book.name,&book.Author,&book.quantity,&book.Price)!=EOF)
+    {
+    //(10,z);
+    printf("%d",book.id);
+    //(26,z);
+    printf("%s",book.name);
+    //(41,z);
+    printf("%s",book.Author);
+    //(52,z);
+    printf("%d",book.quantity);
+    //(63,z);
+    printf("%.2f",book.Price);
+    z++;
+    printf("\n\n");
+    y=y+book.quantity;
+      }
+      //(3,25);
+      printf("Total Books = %d",y);
+      fclose(fp);
+      //(35,25);
+    printf(" Press ENTER to return to main menu");
+    if(getch()==13)
+    mainmenu();
+}
+void ebrecords()
+{
+system("cls");
+    int c=0;
+    int d,e;
+    //(20,4);
+    printf("****Edit Books Section****");
+        system("cls");
+        //(15,6);
+        printf("Enter Book Id to be edited:");
+        scanf("%d",&d);
+        fp=fopen("addbooks.txt","r+");
+         while(fscanf(fp,"\n%d %s %s %d %f\n",&book.id,&book.name,&book.Author,&book.quantity,&book.Price)!=EOF);
+        {
+            if(checkid(d)==0)
+            {
+                //(15,7);
+                printf("The book is availble");
+                //(15,8);
+                printf("The Book ID:%d",book.id);
+                //(15,9);
+                printf("Enter new name:");
+                scanf("%s",book.name);
+                //(15,10);
+                printf("Enter new Author:");
+                scanf("%s",book.Author);
+                //(15,11);
+                printf("Enter new quantity:");
+                scanf("%d",&book.quantity);
+                //(15,12);
+                printf("Enter new price:");
+                scanf("%f",&book.Price);
+                //(15,13);
+                printf("The record is modified");
+                fprintf(fp,"\n%d %s %s %d %f\n",book.id,book.name,book.Author,book.quantity,book.Price);
+                fclose(fp);
+                c=1;
+            }
+            if(c==0)
+            {
+                //(15,9);
+                printf("No record found");
+            }
+        }
+        //(15,16);
+        printf("for modify more record, press y, press any other key for go to main menu");
+        fflush(stdin);
+        if(getch()=='y')
+            ebrecords();
+        else mainmenu();
+    }
+
+void closeapp()
+{
+    system("cls");
+    //(15,4);
+    printf("Thanks For Using This Application.");
+    //(10,10);
+    printf("Loading");
+    for(j=0; j<=20; j++)
+    {
+        delay(60);
+        printf(". ");
+    }
+    //(15,15);
+    exit(0);
+}
+int getdata()
+{
+    int e;
+    system("cls");
+    printf("give info\n");
+    printf("%s\n", categories[d-1]);
+    printf("Book ID: \n");
+    scanf("%d", &e);
+    if(checkid(e)==0)
+    {
+        printf("book already existed. try again.");
+        getch();
+        addbooks();
+    }
+    book.id=e;
+    printf("Book Name: \n");
+    scanf("%s", &book.name);
+    printf("\nAuthor: \n");
+    scanf("%s", &book.Author);
+    printf("\nQuantity: ");
+    scanf("%d", &book.quantity);
+    printf("Price: ");
+    scanf("%f", &book.Price);
+    return 1;
+}
+int checkid(int z)
+{
+    if(fseek(fp, sizeof(book), SEEK_END)==0)
+    while(fscanf(fp,"\n%d %s %s %d %f\n",&book.id,&book.name,&book.Author,&book.quantity,&book.Price)!=EOF)
+    if(book.id==z)
+      return 0;
+}
+int main()
+{
+    int q;
+    printf("welcome!\n1. new registration\n2.login")
+    scanf("%d", &q);
+    if(q==1)registration();
+    else if(q==2)password();
+    return 0;
+}
+
+
